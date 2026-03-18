@@ -1,0 +1,163 @@
+
+   /*     :root {
+            --color-light: rgb(203 213 225);
+            --color-mid: rgb(51 65 85);
+            --color-dark: rgb(71 85 105);
+        }
+        body {
+            background-color: black;
+            color: var(--color-light);
+            font-family: "Inter", sans-serif;
+            font-size: 14px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        body::before {
+            content: "";
+            font-size: 18px;
+            position: absolute;
+            left: 50%;
+            top: calc(50% - 100px);
+            transform: translate(-50%, -50%);
+        }
+        body::after {
+            content: "Icons are borrowed from Heroicons.";
+            position: absolute;
+            bottom: 36px;
+            right: 36px;
+        }
+        #wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            top: 10px;
+            position: absolute;
+
+        }*/
+        .header {
+            width: auto;
+           transform: translateX(-50%);
+            left: 50%;
+            backdrop-filter: blur(3px);
+            padding: 0 16px;
+            display: flex;
+            border: 1px solid var(--color-dark);
+            border-radius: 16px;
+            background: rgba(255,255,255,0.1);
+            align-items: center; /* Align items vertically */
+            justify-content: center;
+            top: 10px;
+            position: absolute;
+        }
+        .iconDiv {
+            height: 36px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            margin-left: 4px;
+            padding: 4px;
+             filter: brightness(0) invert(1);
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+            overflow: hidden;
+            cursor: pointer;
+            transition: width 300ms ease-in-out 0s, background-color 300ms linear 200ms;
+            position: relative;
+            flex-shrink: 0;
+            width: 36px; /* Default width for all icons */
+        }
+
+        .iconSVG {
+            height: 36px;
+            aspect-ratio: 1 / 1;
+        }
+
+        /* General iconDiv hover/focus styles - now more specific */
+        .iconDiv:hover:not(.search-container),
+        .iconDiv:focus-visible:not(.search-container) {
+            width: 142px; /* Expand for normal icons */
+            background-color: var(--color-mid);
+            transition: width 300ms ease-in-out 0s, background-color 100ms linear 0s;
+        }
+
+        .iconDiv:active {
+            opacity: 0.9;
+        }
+
+        /* Tooltip styles: ONLY for non-search icons on hover/focus-visible */
+        .iconDiv:not(.search-container)::after {
+            content: attr(tooltip);
+            margin-left: 12px;
+            opacity: 0; /* Initially hidden */
+            transition: opacity 300ms ease-in-out 0s; /* Transition opacity */
+        }
+
+        .iconDiv:not(.search-container):hover::after,
+        .iconDiv:not(.search-container):focus-visible::after {
+            opacity: 1; /* Show on hover/focus */
+            animation: fadeIn 600ms linear forwards; /* Your original fadeIn */
+        }
+
+
+        /* Specific styles for the search input container */
+        .search-container {
+            /* No fixed width here, its width will be managed by active/hover state */
+            transition: width 300ms ease-in-out, background-color 100ms linear;
+        }
+
+        .search-container.active { /* Class added by JS when active */
+            width: 200px; /* Expanded width for search */
+            background-color: var(--color-mid);
+            transition: width 300ms ease-in-out 0s, background-color 100ms linear 0s;
+        }
+
+        .search-container:hover:not(.active) { /* Hover for search when not active */
+             width: 200px; /* Expand on hover even if not active yet */
+             background-color: var(--color-mid);
+             transition: width 300ms ease-in-out 0s, background-color 100ms linear 0s;
+        }
+
+
+        .search-container input[type="text"] {
+            background: transparent;
+            border: none;
+            color: var(--color-light);
+            padding: 0;
+            margin-left: 12px; /* Space between icon and text */
+            width: 0; /* Initially hidden */
+            opacity: 0;
+            transition: width 300ms ease-in-out, opacity 300ms ease-in-out;
+            outline: none; /* Remove default input outline */
+            flex-grow: 1; /* Allow input to fill available space */
+        }
+
+        .search-container.active input[type="text"],
+        .search-container:hover input[type="text"] {
+            width: calc(100% - 36px - 12px); /* Full width minus icon and margin */
+            opacity: 1;
+            padding-right: 4px; /* Small padding */
+        }
+
+        .search-container input::placeholder {
+            color: rgba(203, 213, 225, 0.7);
+        }
+
+        .spacer {
+            flex-grow: 1;
+        }
+        .divider {
+            height: 36px;
+            width: 1px;
+            margin: 24px 18px;
+            background-color: var(--color-dark);
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }

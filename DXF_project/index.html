@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!--Inject Styles-->
+<link rel="stylesheet" href="src/styles/menu.css">
+<link rel="stylesheet" href="src/styles/altmenu.css">
+<link rel="stylesheet" href="src/hints/hintsstyle.css">
+<!--End Styles-->
+<!--Inject Scripts-->
+<script src="src/classses/Element_parsers/__mainSVGFunctions.js" defer data-module="__mainSVGFunctions"></script>
+<script src="src/classses/Element_parsers/_SvgWrapper.js" defer data-module="_SvgWrapper"></script>
+<script src="src/classses/Element_parsers/_entity.js" defer data-module="_entity"></script>
+<script src="src/classses/Points/_pointmap.js" defer data-module="_pointmap"></script>
+<script src="src/classses/_register.js" defer data-module="_register"></script>
+<script src="src/classses/Element.js" defer data-module="Element"></script>
+<script src="src/classses/Element_parsers/arc.js" defer data-module="arc"></script>
+<script src="src/classses/Element_parsers/blocks.js" defer data-module="blocks"></script>
+<script src="src/classses/Element_parsers/circle.js" defer data-module="circle"></script>
+<script src="src/classses/Element_parsers/insert.js" defer data-module="insert"></script>
+<script src="src/classses/Element_parsers/line.js" defer data-module="line"></script>
+<script src="src/classses/Element_parsers/lwpolyline.js" defer data-module="lwpolyline"></script>
+<script src="src/classses/Element_parsers/mline.js" defer data-module="mline"></script>
+<script src="src/classses/Element_parsers/mtext.js" defer data-module="mtext"></script>
+<script src="src/classses/Element_parsers/text.js" defer data-module="text"></script>
+<script src="src/classses/Menu/Menu.js" defer data-module="Menu"></script>
+<script src="src/classses/Onnodig/CanvasHandler.js" defer data-module="CanvasHandler"></script>
+<script src="src/classses/Onnodig/CoordinateMap.js" defer data-module="CoordinateMap"></script>
+<script src="src/classses/Onnodig/CtxDrawer.js" defer data-module="CtxDrawer"></script>
+<script src="src/classses/Onnodig/ElementGroup.js" defer data-module="ElementGroup"></script>
+<script src="src/classses/Onnodig/ElementsList.js" defer data-module="ElementsList"></script>
+<script src="src/classses/Onnodig/EntityFunctions.js" defer data-module="EntityFunctions"></script>
+<script src="src/classses/Onnodig/UnionMap.js" defer data-module="UnionMap"></script>
+<script src="src/classses/Onnodig/pathfinder.js" defer data-module="pathfinder"></script>
+<script src="src/classses/Onnodig/preprocessor.js" defer data-module="preprocessor"></script>
+<script src="src/classses/Onnodig/svg_drawer.js" defer data-module="svg_drawer"></script>
+<script src="src/classses/Onnodig/test_extends.js" defer data-module="test_extends"></script>
+<script src="src/classses/Onnodig/test_extract.js" defer data-module="test_extract"></script>
+<script src="src/classses/Onnodig/test_parsejsobj.js" defer data-module="test_parsejsobj"></script>
+<script src="src/classses/Points/PointerMap.js" defer data-module="PointerMap"></script>
+<script src="src/classses/Reader.js" defer data-module="Reader"></script>
+<script src="src/classses/Svg.js" defer data-module="Svg"></script>
+<script src="src/hints/hintdata.js" defer data-module="hintdata"></script>
+<script src="src/hints/hinting.js" defer data-module="hinting"></script>
+<script src="src/init.js" defer data-module="init"></script>
+<!--End Scripts-->
+</head>
+
+<body>
+  <!-- SVG Container -->
+  <div id="svg-container" class="svg-container"></div>
+
+<!-- menu -->
+<header class="header">
+    <input type="file" id="actual-btn" onchange="fileInput(this)" hidden/>
+        <label for="actual-btn" class="iconDiv" tooltip="Load file" tabindex="0">
+            <div class="iconSVG">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" />
+                </svg>
+            </div>
+        </label>
+        <div class="iconDiv" tooltip="Download" tabindex="0">
+            <div class="iconSVG">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="iconDiv search-container" tooltip="Search" tabindex="0">
+            <div class="iconSVG">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            </div>
+            <input type="text" id="actual-search" placeholder="Search...">
+        </div>
+        <div class="spacer"></div>
+        <div class="divider"></div>
+        <div class="iconDiv" tooltip="Notifications" tabindex="0">
+            <div class="iconSVG">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+            </div>
+        </div>
+        <div class="iconDiv" tooltip="Log out" tabindex="0">
+            <div class="iconSVG">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+        </div>
+    </header>
+<!--Inject Icons-->
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="add" viewBox="0 0 24 24">
+    <path d="M12 5v14M5 12h14" stroke="black" stroke-width="2" fill="white"/>
+  </symbol>
+  <symbol id="edit" viewBox="0 0 24 24">
+    <path d="M5 15l6-6 5 5-6 6H5z" stroke="white" stroke-width="2" fill="none"/>
+  </symbol>
+</svg>
+<!--End Icons-->
+</body>

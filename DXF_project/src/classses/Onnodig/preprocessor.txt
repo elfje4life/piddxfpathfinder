@@ -1,0 +1,675 @@
+class UnionFind {
+    constructor(n) {
+        this.parent = Array.from({ length: n }, (_, i) => i);
+    }
+
+    find(i) {
+        if (this.parent[i] !== i) {
+            this.parent[i] = this.find(this.parent[i]); // Path compression
+        }
+        return this.parent[i];
+    }
+
+    union(i, j) {
+        const rootI = this.find(i);
+        const rootJ = this.find(j);
+        if (rootI !== rootJ) {
+            this.parent[rootI] = rootJ;
+        }
+    }
+}
+
+class pointMap {
+    #RoadAreas = new Set();
+    /**
+     * PointMap met eerste waarde in map is de x
+     * daarna een Map met alle y waardes
+     * en daarna een set met alle gelinkte objecten
+     * @example
+     * x->y->Set(a,b,c)
+     *  ->y->Set(g,h,b)
+     *  ->y->Set(d,e,b)
+     * @type {Map}
+     */
+
+    AllPointsMap = new Map();
+    /**
+     * Count all the Points
+     * @type {Number}
+     */
+
+    #last_array = [];
+
+    addPoint(x, y, pointerArray, caller = "none") {
+       pointerArray.forEach((value) => {
+            if(value == undefined) {console.log(caller) }});
+
+        //if the points Map has a not has x,
+        //add the x and set a new map to it
+
+
+        if (!this.AllPointsMap.has(x)) {
+            this.AllPointsMap.set(x, new Map());
+        }
+
+        //Add the this x point to a constant
+        const yMap = this.AllPointsMap.get(x);
+
+        //if this y map not has this y
+        //add this y and create a new set
+        if (!yMap.has(y)) {
+            yMap.set(y, new Set());
+        }
+
+        //add to this y in the y map the lookup element
+        const yMapSet = yMap.get(y);
+        pointerArray.forEach((item) => yMapSet.add(item));
+        //yMap.get(y).add(linkedElement); // Link element to this coordinate
+
+        //
+        this.#RoadAreas.forEach((value) => {
+            if (x >= value.x && x <= value.X && y >= value.y && y <= value.Y) {
+                yMapSet.add(value.linkedElement);
+
+
+                // //yMapSet.add(value.linkedElement);
+            }
+        });
+
+      if(yMapSet.has(undefined) && yMapSet.size == 1){
+          yMap.delete(y);
+          console.log(this.#last_array)
+    }
+    this.#last_array = pointerArray;
+    }
+
+    #AddAreaHelper(innerMap, minKey, maxKey, newValue) {
+    innerMap.forEach((_, key) => {
+        if (key >= minKey && key <= maxKey) {
+            innerMap.get(key).add(newValue);
+        }
+    });
+    }
+
+    AddArea(minOuterKey, maxOuterKey, minInnerKey, maxInnerKey, newValue) {
+        this.AllPointsMap.forEach((innerMap, outerKey) => {
+            if (outerKey >= minOuterKey && outerKey <= maxOuterKey) {
+                this.#AddAreaHelper(innerMap, minInnerKey, maxInnerKey, newValue);
+            }
+        });
+        //create a object en add it to a pointmap
+        const newObj = {
+            x: minOuterKey,
+            X: maxOuterKey,
+            y: minInnerKey,
+            Y: maxInnerKey,
+            linkedElement: newValue,
+        };
+        this.#RoadAreas.add(newObj);
+    }
+}
+
+class ElementMap extends pointMap {
+    #Orginal_elements = [];
+    #Lines = new Map();
+    #Cities = new Map();
+    #Arcs = new Map();
+    #Extremes = { x: Infinity, y: Infinity, X: -Infinity, Y: -Infinity };
+    #slack = 0.01;
+
+    getConnectedIndexGroups() {
+        const groups = new Map(); // rootIndex → Set of indexes
+
+        for (let i = 0; i < this.#Orginal_elements.length; i++) {
+            const root = this.Union.find(i);
+            if (!groups.has(root)) {
+                groups.set(root, new Set());
+            }
+            groups.get(root).add(i);
+        }
+
+        return new Set(groups.values()); // Set of Sets of indexes
+    }
+
+
+    /**add a element to the group and return the index
+     */
+    addElement(element) {
+        return this.#Orginal_elements.push(element) - 1;
+    }
+
+    createLinks() {
+        this.Union = new UnionFind(this.#Orginal_elements.length);
+        this.unionizePointMap(this.AllPointsMap, this.Union);
+    }
+    unionizePointMap(pointMap, unionFind) {
+        // Iterate over each outer key (x value)
+        for (const [x, innerMap] of pointMap) {
+            // Iterate over each inner key (y value)
+            for (const [y, indexSet] of innerMap) {
+                const indexes = Array.from(indexSet);
+                if (indexes.length > 1) {
+                    const base = indexes[0]; // Use the first index as the base.
+                    for (let i = 1; i < indexes.length; i++) {
+                        unionFind.union(base, indexes[i]);
+                    }
+                }
+            }
+        }
+    }
+    #addElementToDraw(map, Index, EleToAdd) {
+    if (!map.has(Index)) {
+        map.set(Index, new Set());
+    }
+    map.get(Index).add(EleToAdd);
+    }
+
+    #updateExtremes(x, y) {
+    this.#Extremes = {
+        x: Math.min(this.#Extremes.x, x),
+        X: Math.max(this.#Extremes.X, x),
+        y: Math.min(this.#Extremes.y, y),
+        Y: Math.max(this.#Extremes.Y, y),
+    };
+    }
+
+
+    addLine(x1, y1, x2, y2, Index) {
+        const LineToAdd = {
+            x1,
+            y1,
+            x2,
+            y2,
+            dx: x2 - x1,
+            dy: y2 - y1,
+            ddxy: x2 * y1 - x1 * y2,
+            IndexToOrginalElement: Index,
+            type: "Line",
+        };
+        this.#addElementToDraw(this.#Lines, Index, LineToAdd);
+        this.#updateExtremes(x1, y1);
+        this.#updateExtremes(x2, y2);
+        this.#Lines.forEach((Line, key) => {
+            if (key != Index) {
+                Line.forEach((SetLine) => {
+                    this.#DoLinesHit(
+                        SetLine,
+                        LineToAdd,
+                        SetLine.IndexToOrginalElement,
+                        Index,
+                    );
+                });
+            }
+        });
+    }
+
+    addPoint(x, y, Index,name) {
+        super.addPoint(x, y, [Index],name);
+        this.#updateExtremes(x, y);
+    }
+
+    AddArea(minOuterKey, maxOuterKey, minInnerKey, maxInnerKey, Index) {
+        super.AddArea(minOuterKey, maxOuterKey, minInnerKey, maxInnerKey, Index);
+        this.#updateExtremes(minOuterKey, minInnerKey);
+        this.#updateExtremes(maxOuterKey, maxInnerKey);
+    }
+
+    AddCity(city, Index) {
+        this.#addElementToDraw(this.#Cities, Index, city);
+
+        this.#Cities.forEach((city, key) => {
+            if (key != Index) {
+                city.forEach((cities) => {
+                    this.#DoExtremesHit(cities.#Extremes);
+                });
+            }
+        });
+        //this.#DoExtremesHit();
+    }
+    AddArc(startX, startY, radius, num, largeArcFlag, endX, endY, Index) {
+        super.addPoint(startX, startY, [Index], "arc");
+        super.addPoint(endX, endY, [Index], "arc");
+        this.#updateExtremes(startX, startY);
+        this.#updateExtremes(endX, endY);
+        const ArcToAdd = {
+            startX,
+            startY,
+            radius,
+            endX,
+            endY,
+            IndexToOrginalElement: Index,
+            type: "Arc",
+        };
+        this.#addElementToDraw(this.#Arcs, Index, ArcToAdd);
+        //is this needed? bc if i have the orginal element added
+    }
+    /* Does a extreme hit a other extreme? and really hit not just falls within
+     * or outside..
+     */
+    #DoExtremesHit = (extremes1, extremes2) => {
+    // Check for overlap on the x-axis
+    const xOverlap = extremes1.x <= extremes2.X && extremes2.x <= extremes1.X;
+    // Check for overlap on the y-axis
+    const yOverlap = extremes1.y <= extremes2.Y && extremes2.y <= extremes1.Y;
+    // They overlap if and only if they overlap on both axes
+    const OneInTwo =
+    extremes1.x >= extremes2.x &&
+    extremes1.X <= extremes2.X &&
+    extremes1.y >= extremes2.y &&
+    extremes1.Y <= extremes2.Y;
+    const TwoInOne =
+    extremes2.x >= extremes1.x &&
+    extremes2.X <= extremes1.X &&
+    extremes2.y >= extremes1.y &&
+    extremes2.Y <= extremes1.Y;
+
+    return xOverlap && yOverlap && !OneInTwo && !TwoInOne;
+    };
+
+
+    #DoLinesHit(a, b, indexForA, indexForB) {
+    const { x1: x1, y1: y1, x2: x2, y2: y2 } = a;
+    const { x1: x3, y1: y3, x2: x4, y2: y4 } = b;
+    //TODO: here must be the element to compare.
+    //So A must be a full range of elements and the difference  is the dx and dy
+    let t = (y3 - y1) * a.dx - a.dy * (x3 - x1);
+    let y = (y4 - y1) * a.dx - a.dy * (x4 - x1);
+    let u = (y4 - y1) * b.dx - b.dy * (x4 - x1);
+    let i = (y4 - y2) * b.dx - b.dy * (x4 - x2);
+
+    //this can be trown away bc of the point check with slack
+    if (i > -this.#slack && i < this.#slack) {
+        i = 0;
+    }
+    if (u > -this.#slack && u < this.#slack) {
+        u = 0;
+    }
+    if (y > -this.#slack && y < this.#slack) {
+        y = 0;
+    }
+    if (t > -this.#slack && t < this.#slack) {
+        t = 0;
+    }
+
+    //on the same direction not crossing
+    if (t == 0 && u == 0 && y == 0 && i == 0) {
+        return -1;
+    }
+    if ((t == 0 && y == 0) || (u == 0 && i == 0)) {
+        return -1;
+    }
+    if (t == y && u == i) {
+        return -1;
+    }
+
+    //passing trough each other without landing on the line
+    if (Math.sign(t) == -Math.sign(y) && Math.sign(u) == -Math.sign(i)) {
+        //TODO x2 * y1 - x1 * y2 and (x4 * y3 - y4 * x3) can be a stored parameter of a and b
+        const x = (a.ddxy * b.dx - b.ddxy * a.dx) / (a.dx * b.dy - b.dx * a.dy);
+        const k = a.dx * (x - x1) + y1;
+        //add this to the point map with the given elements both!!
+
+        super.addPoint(x, k, [indexForA, indexForB], "crossign");
+        return;
+    }
+
+    //one point on the line
+    if ((t * y == 0 || t * y == -0) && Math.sign(u) == -Math.sign(i)) {
+        if (t == 0 || t == -0) {
+            //x3 y3 hits the line
+            //add point x3 y3 with element a
+            super.addPoint(x3, y3, [indexForA], "crossignA");
+        }
+        if (y == 0 || y == -0) {
+            //x4 y4 hits the line
+            super.addPoint(x4, y4, [indexForA], "crossignA");
+        }
+        return;
+    }
+    if ((u * i == 0 || u * i == -0) && Math.sign(t) == -Math.sign(y)) {
+        if (u == 0 || u == -0) {
+            //x1 y1 hits the line
+            //add point x1 y1 with element b
+            super.addPoint(x1, y1, [indexForB], "crossigB");
+        }
+        if (i == 0 || i == -0) {
+            //x2 y2 hits the line
+            //add point x2 y2 with element b
+            super.addPoint(x2, y2, [indexForB], "crossignB");
+        }
+        return;
+    }
+
+    return -1;
+    }
+}
+
+class preproccesing {
+    #missing_functions = new Set();
+    #pi_degree = Math.PI / 180;
+    //#roads = [];
+    //#crossing = new Set();
+    #file; // for debuging
+    #RoadGroups = new ElementMap();
+    #Citys = [];
+    #Blocks = {};
+
+    position;
+    constructor(parsed_file) {
+        this.#file = { ...parsed_file };
+        Object.freeze(this.#file);
+        const { ENTITIES, BLOCKS } = this.#file;
+        for (const [key, values] of Object.entries(BLOCKS)) {
+            let a = new ElementMap();
+            this.#function_handler(values, this.#EntityFunctions, a);
+            this.#Blocks[key] = a;
+        }
+        //this.#function_handler(BLOCKS, this.#EntityFunctions, this.#Citys);
+        let  {INSERT, ...rest} = this.#EntityFunctions;
+        this.#function_handler(ENTITIES, rest, this.#RoadGroups);
+
+        for (const [key, values] of Object.entries(ENTITIES.INSERT)) {
+            let a = this.#Blocks[values.AcDbBlockReference[2]];
+            this.#function_handler(values, this.#EntityFunctions, a);
+
+            this.#Citys.push( a);
+            let index = this.#RoadGroups.addElement(a);
+            //this.#RoadGroups.AddCity(a,index)
+        }
+          //  this.#function_handler(ENTITIES, INSERT, this.#Citys);
+
+
+        // this.sortArray(this.#points)
+        this.#RoadGroups.createLinks();
+        const elementGroups = this.#RoadGroups.getConnectedIndexGroups();
+        console.log(elementGroups)
+       // elementGroups.forEach(group => {
+        //    console.log("Group:");
+        //    group.forEach(el => console.log(el));
+        //});
+
+    }
+    #Line = (line, output) => {
+    const { [10]: x1, [11]: x2, [20]: y1, [21]: y2 } = line.AcDbLine;
+    const Index = output.addElement(line);
+    output.addLine(x1, y1, x2, y2, Index);
+    };
+
+
+    #INSERT = (insert, output) => {
+    const {
+        [2]: href,
+        [10]: x,
+        [20]: y,
+        [41]: scale_x =1,
+        [42]: scale_y=1,
+        [50]: rotation=0,
+    } = insert.AcDbBlockReference;
+    output = this.#file.BLOCKS[href];
+    this.#function_handler(insert, this.#EntityFunctions, output);
+    output.extra = {href,x,y,scale_x,scale_y,rotation};
+    };
+
+    #Mline = (mline, output) => {
+    const {
+        [11]: [...x],
+        [21]: [...y],
+        [12]: [...directionX],
+        [22]: [...directionY],
+        [10]: startXOffset,
+        [20]: startYOffset,
+    } = mline.AcDbMline;
+
+    const Index = output.addElement(mline);
+
+    //there is nothing that can go wrong there are just two lines
+    if (x.length == 2) {
+        output.addLine(x[0], y[0], x[1], y[1], Index);
+    }
+
+    let startIndex = x.findIndex(
+        (x, i) => x === startXOffset && y[i] === startYOffset,
+    );
+
+    if (startIndex === -1) {
+        //console.warn("Start offset not found in vertex data.");
+        startIndex = 0;
+    }
+
+    let currentX = x[startIndex];
+    let currentY = y[startIndex];
+    let currentDirectionX = directionX[startIndex];
+    let currentDirectionY = directionY[startIndex];
+
+    // Remove the starting point data
+    x.splice(startIndex, 1);
+    y.splice(startIndex, 1);
+    directionX.splice(startIndex, 1);
+    directionY.splice(startIndex, 1);
+
+    //let points = [{x:currentX, y:currentY}]
+
+    while (directionX.length > 0) {
+        //find the next point on the direction
+        let nextIndex = x.findIndex((x, i) => {
+            let dx = Math.sign(x - currentX);
+            let dy = Math.sign(y[i] - currentY);
+            return dx === currentDirectionX && dy === currentDirectionY;
+        });
+
+        if (nextIndex === -1) {
+            nextIndex = 0;
+        }
+
+        currentX = x[nextIndex];
+        currentY = y[nextIndex];
+        currentDirectionX = directionX[nextIndex];
+        currentDirectionY = directionY[nextIndex];
+
+        output.addLine(currentX, currentY, x[nextIndex], y[nextIndex], Index);
+
+        x.splice(nextIndex, 1);
+        y.splice(nextIndex, 1);
+        directionX.splice(nextIndex, 1);
+        directionY.splice(nextIndex, 1);
+    }
+    };
+
+    #Arc = (arc, output) => {
+    const {
+        AcDbEntity: { [60]: invisible },
+        AcDbArc: { [50]: degreeStart },
+        AcDbArc: { [51]: degreeEnd },
+        AcDbCircle: { [10]: x },
+        AcDbCircle: { [20]: y },
+        AcDbCircle: { [40]: radius },
+    } = arc;
+
+    const Index = output.addElement(arc);
+
+    const radianStart = -degreeStart * this.#pi_degree;
+    const radianEnd = -degreeEnd * this.#pi_degree;
+
+    let startX = x + radius * Math.cos(radianStart);
+    let startY = y + radius * Math.sin(radianStart);
+    let endX = x + radius * Math.cos(radianEnd);
+    let endY = y + radius * Math.sin(radianEnd);
+
+    const largeArcFlag = degreeEnd - degreeStart <= 180 ? 0 : 1;
+
+    //const path = `M ${startX} ${startY} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${endX} ${endY} `;
+    output.AddArc(startX, startY, radius, 0, largeArcFlag, endX, endY, Index);
+    };
+    #LWPOLYLINE = (lwpolyline, output) => {
+    const {
+        AcDbEntity: { [60]: invisible = 0 },
+        AcDbEntity: { [62]: color },
+        AcDbPolyline: { [42]: [...bulge] = [] },
+        AcDbPolyline: {
+            [10]: [...x],
+        },
+        AcDbPolyline: {
+            [20]: [...y],
+        },
+    } = lwpolyline;
+    const Index = output.addElement(lwpolyline);
+
+    const points = x.map((x, i) => {
+        return { x: x, y: y[i] };
+    });
+    const diff = x.map((_, i) => {
+        // Changed x.map to x.map
+        if (i === 0) {
+            return { dx: 0, dy: 0 }; // Or any other default value for the first point
+        }
+        return { dx: x[i - 1] - x[i], dy: y[i - 1] - y[i] };
+    });
+    //x = x.map(this.#toFixedNumber);
+    //y = y.map(this.#toFixedNumber);
+
+    let path = `M ${x[0]} ${y[0]} `; // toFixed toegepast op x[0] en y[0]
+
+    for (let i = 1; i < x.length; i++) {
+        if (bulge && bulge[i - 1]) {
+            // Calculate the distance between start and end points
+            let dx = diff[i].dx;
+            let dy = diff[i].dy;
+            let distance = Math.sqrt(dx * dx + dy * dy);
+            // Calculate the radius of the arc
+            //console.log(bulge)
+            let radius = distance / 2 / Math.abs(bulge[i - 1]);
+            let sweepFlag = bulge[i - 1] > 0 ? 1 : 0;
+            path += `A ${radius} ${radius} 0 0 ${sweepFlag} ${x[i]} ${y[i]} `;
+            output.AddArc(
+                x[i - 1],
+                y[i - 1],
+                radius,
+                0,
+                sweepFlag,
+                x[i],
+                y[i],
+                Index,
+            );
+        } else {
+            path += `L ${x[i]} ${y[i]} `;
+            output.addLine(x[i - 1], y[i - 1], x[i], y[i], Index);
+        }
+    }
+    path += `Z `;
+    let area = this.#Extremes(points);
+    output.AddArea(area.x, area.X, area.y, area.Y, Index);
+    return { path: path, points: points, difference: diff, type: "lwpolyline" };
+    };
+
+    #extractEntityProperties = (entity) => {
+    const {
+        [60]: invisible,
+        [8]: layername,
+        [48]: linetype_scale,
+    } = entity.AcDbEntity;
+    return { invisible, layername, linetype_scale };
+    };
+
+    //helper ffunctions
+
+    #function_handler = (object, objectHandlers, output) => {
+    for (const [key, values] of Object.entries(object)) {
+        if (objectHandlers[key]) {
+            //has the same key
+
+            if (Array.isArray(values)) {
+                //output.push()
+                values.map((x) => {
+                    objectHandlers[key](x, output);
+                });
+                //.filter(item => item !== undefined);
+            } else {
+                objectHandlers[key](values, output);
+            }
+            continue;
+        }
+        if (typeof values == "object" && !Array.isArray(values)) {
+            this.#missing_functions.add(key);
+        }
+    }
+    };
+
+    #Extremes = (points) => {
+    const extremes = points.reduce(
+        (acc, point) => {
+            return {
+                minX: Math.min(acc.minX, point.x),
+                                   maxX: Math.max(acc.maxX, point.x),
+                                   minY: Math.min(acc.minY, point.y),
+                                   maxY: Math.max(acc.maxY, point.y),
+            };
+        },
+        { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity },
+    ); //Inituele waardes
+
+    return {
+        x: extremes.minX,
+        y: extremes.minY,
+        X: extremes.maxX,
+        Y: extremes.maxY,
+    };
+    };
+
+    #setExtremes(object) {
+    //let allPoints = [];
+    for (const [key, values] of Object.entries(object)) {
+        let allPoints = [];
+        if (Array.isArray(values.paths)) {
+            for (const item of values.paths) {
+                if (item?.points && Array.isArray(item.points)) {
+                    allPoints = allPoints.concat(item.points);
+                }
+            }
+            if (allPoints.length > 0) {
+                const extremes = this.#Extremes(allPoints);
+
+                object[key].extremes = extremes;
+            }
+        }
+    }
+    return object;
+    }
+
+    /* Does a extreme hit a other extreme? and really hit not just falls within
+     * or outside..
+     */
+    #DoExtremesHit = (extremes1, extremes2) => {
+    // Check for overlap on the x-axis
+    const xOverlap = extremes1.x <= extremes2.X && extremes2.x <= extremes1.X;
+    // Check for overlap on the y-axis
+    const yOverlap = extremes1.y <= extremes2.Y && extremes2.y <= extremes1.Y;
+    // They overlap if and only if they overlap on both axes
+    const OneInTwo =
+    extremes1.x >= extremes2.x &&
+    extremes1.X <= extremes2.X &&
+    extremes1.y >= extremes2.y &&
+    extremes1.Y <= extremes2.Y;
+    const TwoInOne =
+    extremes2.x >= extremes1.x &&
+    extremes2.X <= extremes1.X &&
+    extremes2.y >= extremes1.y &&
+    extremes2.Y <= extremes1.Y;
+
+    return xOverlap && yOverlap && !OneInTwo && !TwoInOne;
+    };
+
+    //Bound functions to destruct each object
+
+    #EntityFunctions = {
+    LINE: this.#Line.bind(this),
+    ARC: this.#Arc.bind(this),
+    MLINE: this.#Mline.bind(this),
+    LWPOLYLINE: this.#LWPOLYLINE.bind(this),
+    INSERT: this.#INSERT.bind(this),
+    //TEXT: this.#TEXT.bind(this),
+    //ATTDEF: this.#TEXT.bind(this),
+    //ATTRIB: this.#TEXT.bind(this),
+    //MTEXT: this.#MTEXT.bind(this),
+    };
+
+}

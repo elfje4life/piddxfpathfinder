@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="add" viewBox="0 0 24 24">
+    <path d="M12 5v14M5 12h14" stroke="black" stroke-width="2" fill="white"/>
+  </symbol>
+  <symbol id="edit" viewBox="0 0 24 24">
+    <path d="M5 15l6-6 5 5-6 6H5z" stroke="white" stroke-width="2" fill="none"/>
+  </symbol>
+</svg>

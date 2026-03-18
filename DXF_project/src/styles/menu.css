@@ -1,0 +1,112 @@
+.svg_listing {
+  display: flex;
+  position: fixed;
+  top: 50%;
+  left: -80px;
+  width: 80px;
+  border: 5px;
+  transform: translateY(-50%);
+  height: 80%;
+  background: rgba(255, 255, 255, 0.01);
+  overflow-y: scroll;
+  z-index: 999;
+  border-radius: 20px;
+  color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.1);
+  transition-duration: 2s;
+  display: inline-block;
+}
+
+.icon {
+  width: 80%;
+  left: 10%;
+  stroke: white;
+  filter: brightness(0) invert(1);
+  height: 50px;
+  border: solid 2px;
+  border-radius: 20px;
+  border-color: rgba(255, 255, 255, 0.2);
+
+  gap: 15px;
+  color: rgba(255, 255, 255, 1);
+  display: inline-block;
+  color: white;
+  position: relative;
+}
+
+.transparent-menu {
+  position: fixed;
+  top: -80px; /* Hidden above initially */
+  left: 50%;
+  transform: translateX(50%);
+  width: 80%;
+  display: flex;
+  align-items: center;
+  transition: top 2s ease-in-out; /* Smooth dropdown effect */
+  transition-duration: 2s;
+  justify-content: space-between;
+  padding: 10px;
+
+  background: rgba(255, 255, 255, 0.01);
+  backdrop-filter: blur(0px);
+  border-radius: 20px;
+  pointer-events: none;
+}
+
+.menu-left,
+.menu-right {
+  display: flex;
+  gap: 15px;
+}
+.menu-btn[type="file"] {
+  color: transparent;
+  font-size: 0px;
+  padding: 0px 0px;
+}
+#svg-container {
+  width:100%;
+  height:100%;
+  display: flex;
+}
+.menu-btn::file-selector-button,
+.menu-btn,
+.search-bar {
+  pointer-events: auto;
+  transition-duration: 0.5s;
+  background: rgba(255, 255, 255, 0);
+  padding: 10px 15px;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.1);
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.menu-btn i {
+  font-size: 18px;
+}
+
+.search-bar {
+  width: 250px;
+  text-align: center;
+  border-radius: 20px;
+  border: none;
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.menu-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 1);
+}
+.search-bar:focus {
+  background: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 1);
+}
+.search-bar:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 1);
+}

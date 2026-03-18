@@ -1,0 +1,68 @@
+        /* Base class for elements that will show a hint on hover */
+        .hinting-hover {
+            position: relative; /* Essential for positioning the tooltip relative to this element */
+            cursor: help; /* Changes cursor to a question mark, indicating interactivity/help */
+        }
+
+        /* Styles for the dynamically created tooltip popup */
+        .hinting-hover-tooltip {
+            position: absolute; /* Positioned relative to the .hinting-hover parent */
+            background-color: #333; /* Dark background for the tooltip */
+            color: #fff; /* White text color */
+            padding: 8px 12px; /* Padding inside the tooltip */
+            border-radius: 6px; /* Slightly rounded corners */
+            font-size: 0.875rem; /* Equivalent to text-sm in Tailwind */
+            line-height: 1.25; /* Good line height for readability */
+            white-space: nowrap; /* Prevents the text from wrapping, keeping it on one line */
+            z-index: 1000; /* Ensures the tooltip appears on top of other content */
+            opacity: 0; /* Initially invisible */
+            visibility: hidden; /* Also hidden from accessibility tree and pointer events */
+            transition: opacity 0.3s ease, visibility 0.3s ease; /* Smooth transition for fade-in/out */
+
+            /* Default positioning: 10px above the element, horizontally centered */
+            bottom: calc(100% + 10px);
+            left: 50%;
+            transform: translateX(-50%); /* Centers the tooltip based on its own width */
+            pointer-events: none; /* Allows clicks to pass through the tooltip when not hovered */
+        }
+
+        /* Show tooltip on hover over the parent .hinting-hover element */
+        .hinting-hover:hover .hinting-hover-tooltip {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto; /* Re-enable pointer events when visible */
+        }
+        .elements-grid {
+            display: grid;
+            grid-template-columns: repeat(1, minmax(0, 1fr)); /* grid-cols-1 */
+            gap: 24px; /* gap-6 */
+            width: 100%; /* w-full */
+            max-width: 960px; /* max-w-5xl */
+        }
+
+        @media (min-width: 768px) { /* md breakpoint */
+            .elements-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr)); /* md:grid-cols-2 */
+            }
+        }
+
+        @media (min-width: 1024px) { /* lg breakpoint */
+            .elements-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr)); /* lg:grid-cols-3 */
+            }
+        }
+        /* Optional: Add a small arrow pointing from the tooltip to the element */
+        .hinting-hover-tooltip::after {
+            content: ''; /* Required for pseudo-elements */
+            position: absolute;
+            width: 0;
+            height: 0;
+            /* Creates a triangle using borders */
+            border-left: 7px solid transparent;
+            border-right: 7px solid transparent;
+            border-top: 7px solid #333; /* Matches tooltip background color */
+            bottom: -7px; /* Positions the arrow just outside the tooltip bottom edge */
+            left: 50%;
+            transform: translateX(-50%); /* Centers the arrow */
+        }
+
