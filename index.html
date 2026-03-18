@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!--Inject Styles-->
+    <link rel="stylesheet" href="src/styles/menu.css" />
+    <link rel="stylesheet" href="src/styles/icons.css" />
+    <link rel="stylesheet" href="src/styles/hinting.css" />
+  </head>
+  <body>
+    <nav class="transparent-menu">
+      <div class="menu-left">
+        <button class="menu-btn"><i class="fa-thin fa-home"></i> Home</button>
+        <input type="file" accept=".dxf" multiple=true onchange="fileInput(this)" class="menu-btn" value="add"></input>
+      </div>
+
+      <input type="text" class="search-bar" placeholder="Search..." />
+
+      <div class="menu-right">
+        <button class="menu-btn">
+          <i class="fa-thin fa-cogs"></i> Services
+        </button>
+        <button class="menu-btn">
+          <i class="fa-thin fa-envelope"></i> Contact
+        </button>
+      </div>
+    </nav>
+    <canvas id="myCanvas">
+      An alternative text describing what your canvas displays.
+    </canvas>
+    <!--Inject Icons-->
+
+    <svg>
+      <image src="src/icons/project-development.svg"></image>
+    </svg>
+    <!--Inject Scripts-->
+    <script src="src/styles/menu.js"></script>
+    <script src="src/classses/Reader.js"></script>
+    <script src="src/classses/CtxDrawer.js"></script>
+    <script src="src/classses/CanvasHandler.js"></script>
+    <script src="src/classses/ElementsList.js"></script>
+    <script src="src/classses/CoordinateMap.js"></script>
+  </body>
+</html>
